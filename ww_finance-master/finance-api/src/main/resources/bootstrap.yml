@@ -4,24 +4,15 @@ spring:
   application:
     name: service-core # 服务名
   config:
-    import:
-      - nacos:service-core.yaml
+    import-check:
+      enabled: false
 
   cloud:
     nacos:
       discovery:
-        server-addr: localhost:8848 # nacos服务地址（默认端口）
-        username: nacos
-        password: nacos
-        namespace: public
-        group: DEFAULT_GROUP
+        enabled: false
       config:
-        import-check:
-          enabled: true
-        group: DEFAULT_GROUP
-        server-addr: localhost:8848
-        namespace: public
-        file-extension: yaml
+        enabled: false
 
 logging:
   level:

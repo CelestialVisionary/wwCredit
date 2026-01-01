@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/user'
 import apiClient from '../utils/api'
 
 const router = useRouter()
-const userStore = useUserStore()
 
 // 表单数据
 const formData = reactive({
@@ -43,7 +41,7 @@ const passwordStrengthColor = ref('#d9d9d9')
 const checkMobile = async () => {
   try {
     const response = await apiClient.get(`/user/checkMobile/${formData.mobile}`)
-    return response.data
+    return response.data.data
   } catch (error) {
     console.error('手机号检查失败:', error)
     return false
@@ -171,11 +169,6 @@ const handleRegister = async () => {
     
     console.log('注册成功:', response)
     
-    // 存储登录状态
-    const token = response.data
-    localStorage.setItem('token', token)
-    userStore.setToken(token)
-    
     // 显示注册成功提示
     alert('注册成功，请登录')
     
@@ -184,7 +177,7 @@ const handleRegister = async () => {
   } catch (error: any) {
     // 处理注册失败
     console.error('注册失败:', error)
-    errorMessage.value = error.response?.data?.message || '注册失败，请稍后再试'
+    errorMessage.value = error.response?.data?.msg || '注册失败，请稍后再试'
   } finally {
     // 重置加载状态
     isLoading.value = false

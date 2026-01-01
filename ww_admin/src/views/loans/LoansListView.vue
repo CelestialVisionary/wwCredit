@@ -13,7 +13,7 @@
         <input 
           type="text" 
           v-model="searchQuery" 
-          placeholder="搜索贷款ID、用户名称或手机号..."
+          placeholder="搜索贷款ID或标题..."
           @keyup.enter="searchLoans"
         />
         <button class="search-btn" @click="searchLoans">搜索</button>
@@ -29,23 +29,23 @@
           <option value="completed">已完成</option>
           <option value="overdue">已逾期</option>
         </select>
-        
-        <select v-model="typeFilter">
-          <option value="">全部类型</option>
-          <option value="small">小额借款</option>
-          <option value="medium">中额借款</option>
-          <option value="large">大额借款</option>
-        </select>
       </div>
     </div>
     
     <!-- 贷款列表表格 -->
     <div class="table-container">
-      <table class="data-table">
+      <!-- 加载状态 -->
+      <div v-if="isLoading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>加载中...</p>
+      </div>
+      
+      <!-- 数据表格 -->
+      <table v-else class="data-table">
         <thead>
           <tr>
             <th>贷款ID</th>
-            <th>用户信息</th>
+            <th>贷款标题</th>
             <th>贷款金额</th>
             <th>期限</th>
             <th>利率</th>
@@ -57,14 +57,11 @@
         <tbody>
           <tr v-for="loan in filteredLoans" :key="loan.id">
             <td>{{ loan.id }}</td>
-            <td class="user-info">
-              <div class="user-name">{{ loan.userName }}</div>
-              <div class="user-phone">{{ loan.userPhone }}</div>
-            </td>
-            <td class="amount">¥{{ loan.amount.toLocaleString() }}</td>
-            <td>{{ loan.term }}期</td>
-            <td>{{ loan.interestRate }}%</td>
-            <td>{{ formatDate(loan.applicationDate) }}</td>
+            <td>{{ loan.title }}</td>
+            <td class="amount">¥{{ loan.amount?.toLocaleString() }}</td>
+            <td>{{ loan.period }}期</td>
+            <td>{{ loan.borrowYearRate }}%</td>
+            <td>{{ formatDate(loan.createTime) }}</td>
             <td>
               <span class="status-badge" :class="getStatusClass(loan.status)">
                 {{ getStatusText(loan.status) }}
@@ -74,21 +71,21 @@
               <div class="action-buttons">
                 <button class="action-btn view" @click="viewLoan(loan)">查看详情</button>
                 <button 
-                  v-if="loan.status === 'pending'"
+                  v-if="loan.status === 1"
                   class="action-btn approve" 
                   @click="approveLoan(loan)"
                 >
                   批准
                 </button>
                 <button 
-                  v-if="loan.status === 'pending'"
+                  v-if="loan.status === 1"
                   class="action-btn reject" 
                   @click="rejectLoan(loan)"
                 >
                   拒绝
                 </button>
                 <button 
-                  v-if="loan.status === 'overdue'"
+                  v-if="loan.status === -2"
                   class="action-btn remind" 
                   @click="remindPayment(loan)"
                 >
@@ -101,7 +98,7 @@
       </table>
       
       <!-- 空状态 -->
-      <div v-if="filteredLoans.length === 0" class="empty-state">
+      <div v-if="!isLoading && filteredLoans.length === 0" class="empty-state">
         <p>暂无贷款数据</p>
       </div>
     </div>
@@ -126,74 +123,151 @@
         下一页
       </button>
     </div>
+    
+    <!-- 贷款详情弹窗 -->
+    <div v-if="showDetailModal" class="modal-overlay" @click="showDetailModal = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>贷款详情</h3>
+          <button class="close-btn" @click="showDetailModal = false">×</button>
+        </div>
+        <div class="modal-body" v-if="selectedLoan">
+          <div class="detail-row">
+            <div class="detail-label">贷款ID</div>
+            <div class="detail-value">{{ selectedLoan.id }}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">贷款标题</div>
+            <div class="detail-value">{{ selectedLoan.title }}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">用户ID</div>
+            <div class="detail-value">{{ selectedLoan.userId }}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">贷款金额</div>
+            <div class="detail-value">¥{{ selectedLoan.amount?.toLocaleString() }}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">贷款期限</div>
+            <div class="detail-value">{{ selectedLoan.period }} 个月</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">年化利率</div>
+            <div class="detail-value">{{ selectedLoan.borrowYearRate }}%</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">申请时间</div>
+            <div class="detail-value">{{ formatDate(selectedLoan.createTime) }}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">贷款状态</div>
+            <div class="detail-value">
+              <span class="status-badge" :class="getStatusClass(selectedLoan.status)">
+                {{ getStatusText(selectedLoan.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="showDetailModal = false">关闭</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from '../../utils/axios.config'
 
 // 定义贷款接口
 interface Loan {
   id: string;
-  userName: string;
-  userPhone: string;
+  title: string;
   amount: number;
-  term: number;
-  interestRate: number;
-  applicationDate: string;
-  status: 'pending' | 'approved' | 'rejected' | 'active' | 'completed' | 'overdue';
-  type: 'small' | 'medium' | 'large';
+  period: number;
+  borrowYearRate: number;
+  createTime: string;
+  status: number;
+  userId: number;
+  // 其他字段
 }
 
-// 模拟贷款数据
-const mockLoans: Loan[] = [
-  { id: 'LOAN2024001', userName: '张三', userPhone: '138****1234', amount: 5000, term: 6, interestRate: 8.5, applicationDate: '2024-01-15', status: 'active', type: 'small' },
-  { id: 'LOAN2024002', userName: '李四', userPhone: '139****5678', amount: 20000, term: 12, interestRate: 7.2, applicationDate: '2024-02-20', status: 'completed', type: 'medium' },
-  { id: 'LOAN2024003', userName: '王五', userPhone: '137****9012', amount: 8000, term: 6, interestRate: 8.8, applicationDate: '2024-03-10', status: 'pending', type: 'small' },
-  { id: 'LOAN2024004', userName: '赵六', userPhone: '136****3456', amount: 50000, term: 24, interestRate: 6.5, applicationDate: '2024-04-05', status: 'rejected', type: 'large' },
-  { id: 'LOAN2024005', userName: '钱七', userPhone: '135****7890', amount: 15000, term: 12, interestRate: 7.5, applicationDate: '2024-05-18', status: 'overdue', type: 'medium' },
-  { id: 'LOAN2024006', userName: '孙八', userPhone: '134****2345', amount: 3000, term: 3, interestRate: 9.0, applicationDate: '2024-06-22', status: 'approved', type: 'small' },
-  { id: 'LOAN2024007', userName: '周九', userPhone: '133****6789', amount: 30000, term: 18, interestRate: 7.0, applicationDate: '2024-07-30', status: 'active', type: 'large' },
-  { id: 'LOAN2024008', userName: '吴十', userPhone: '132****0123', amount: 12000, term: 9, interestRate: 7.8, applicationDate: '2024-08-15', status: 'completed', type: 'medium' },
-  { id: 'LOAN2024009', userName: '郑十一', userPhone: '131****4567', amount: 7000, term: 6, interestRate: 8.6, applicationDate: '2024-09-10', status: 'pending', type: 'small' },
-  { id: 'LOAN2024010', userName: '王十二', userPhone: '130****8901', amount: 25000, term: 12, interestRate: 7.3, applicationDate: '2024-10-25', status: 'active', type: 'medium' },
-]
+// 定义API响应接口
+interface ApiResponse {
+  code: number;
+  msg: string;
+  data: any;
+}
 
 // 响应式数据
-const loans = ref<Loan[]>(mockLoans)
+const loans = ref<Loan[]>([])
 const searchQuery = ref('')
 const statusFilter = ref('')
-const typeFilter = ref('')
 const currentPage = ref(1)
 const pageSize = 10
+const isLoading = ref(false)
+const totalRecords = ref(0)
 
 // 计算属性
 const filteredLoans = computed(() => {
-  return loans.value.filter(loan => {
-    const matchesSearch = !searchQuery.value || 
-      loan.id.includes(searchQuery.value) ||
-      loan.userName.includes(searchQuery.value) ||
-      loan.userPhone.includes(searchQuery.value)
-    
-    const matchesStatus = !statusFilter.value || loan.status === statusFilter.value
-    const matchesType = !typeFilter.value || loan.type === typeFilter.value
-    
-    return matchesSearch && matchesStatus && matchesType
-  })
+  return loans.value
 })
 
 const totalPages = computed(() => {
-  return Math.ceil(filteredLoans.value.length / pageSize)
+  return Math.ceil(totalRecords.value / pageSize)
 })
 
+// 状态转换函数：前端状态转后端状态码
+const convertStatusToBackend = (status: string): number | null => {
+  const statusMap: Record<string, number> = {
+    pending: 1,    // 待审核
+    approved: 2,   // 审核通过
+    rejected: -1,  // 审核不通过
+    active: 3,     // 还款中
+    completed: 4,  // 已完成
+    overdue: -2    // 已逾期
+  }
+  return status ? statusMap[status] : null
+}
+
 // 方法
+const fetchLoans = async () => {
+  isLoading.value = true
+  try {
+    // 将前端状态转换为后端状态码
+    const backendStatus = convertStatusToBackend(statusFilter.value)
+    
+    const response = await axios.get<ApiResponse>('/api/core/borrowInfo/list', {
+      params: {
+        current: currentPage.value,
+        limit: pageSize,
+        keyword: searchQuery.value,
+        status: backendStatus
+      }
+    })
+    
+    if (response.data.code === 200) {
+      loans.value = response.data.data.records
+      totalRecords.value = response.data.data.total
+    }
+  } catch (error) {
+    console.error('获取贷款列表失败:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const searchLoans = () => {
   currentPage.value = 1
+  fetchLoans()
 }
 
 const changePage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
+    fetchLoans()
   }
 }
 
@@ -201,49 +275,76 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('zh-CN')
 }
 
-const getStatusText = (status: string) => {
-  const statusMap: Record<string, string> = {
-    pending: '待审核',
-    approved: '已批准',
-    rejected: '已拒绝',
-    active: '还款中',
-    completed: '已完成',
-    overdue: '已逾期'
-  }
-  return statusMap[status] || status
+const getStatusText = (status: number) => {
+  const statusMap: Record<number, string> = {
+    0: '未认证',
+    1: '审核中',
+    2: '审核通过',
+    3: '还款中',
+    4: '已完成',
+    '-1': '审核不通过',
+    '-2': '已逾期'
+  } as any
+  return statusMap[status] || '未知状态'
 }
 
-const getStatusClass = (status: string) => {
-  const classMap: Record<string, string> = {
-    pending: 'status-pending',
-    approved: 'status-approved',
-    rejected: 'status-rejected',
-    active: 'status-active',
-    completed: 'status-completed',
-    overdue: 'status-overdue'
-  }
-  return classMap[status] || ''
+const getStatusClass = (status: number) => {
+  const statusMap: Record<number, string> = {
+    0: 'status-pending',
+    1: 'status-pending',
+    2: 'status-approved',
+    3: 'status-active',
+    4: 'status-completed',
+    '-1': 'status-rejected',
+    '-2': 'status-overdue'
+  } as any
+  return statusMap[status] || ''
 }
+
+// 贷款详情弹窗相关
+const showDetailModal = ref(false)
+const selectedLoan = ref<Loan | null>(null)
 
 const viewLoan = (loan: Loan) => {
-  console.log('查看贷款详情:', loan)
-  // 这里可以打开贷款详情弹窗
+  selectedLoan.value = loan
+  showDetailModal.value = true
 }
 
-const approveLoan = (loan: Loan) => {
-  console.log('批准贷款:', loan)
-  // 这里可以实现批准贷款的逻辑
+const approveLoan = async (loan: Loan) => {
+  try {
+    await axios.post<ApiResponse>('/api/core/borrowInfo/approval', {
+      id: loan.id,
+      status: 2 // 审核通过
+    })
+    // 重新获取贷款列表
+    fetchLoans()
+  } catch (error) {
+    console.error('批准贷款失败:', error)
+  }
 }
 
-const rejectLoan = (loan: Loan) => {
-  console.log('拒绝贷款:', loan)
-  // 这里可以实现拒绝贷款的逻辑
+const rejectLoan = async (loan: Loan) => {
+  try {
+    await axios.post<ApiResponse>('/api/core/borrowInfo/approval', {
+      id: loan.id,
+      status: -1 // 审核不通过
+    })
+    // 重新获取贷款列表
+    fetchLoans()
+  } catch (error) {
+    console.error('拒绝贷款失败:', error)
+  }
 }
 
 const remindPayment = (loan: Loan) => {
   console.log('提醒还款:', loan)
   // 这里可以实现提醒还款的逻辑
 }
+
+// 页面挂载时获取贷款列表
+onMounted(() => {
+  fetchLoans()
+})
 </script>
 
 <style scoped>
@@ -471,10 +572,147 @@ const remindPayment = (loan: Loan) => {
   background-color: #fde68a;
 }
 
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .empty-state {
   text-align: center;
   padding: 60px 20px;
   color: #64748b;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.close-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  width: 100px;
+  font-weight: 500;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.detail-value {
+  flex: 1;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #e2e8f0;
+  text-align: right;
+}
+
+.modal-footer .btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
 }
 
 .pagination {

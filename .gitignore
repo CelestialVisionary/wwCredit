@@ -71,3 +71,6 @@ coverage/
 *.tmp
 *.temp
 .temp/
+
+# Trae IDE工作目录
+.trae/

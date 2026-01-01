@@ -62,7 +62,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       const response = await apiClient.get('/user/userInfo', {
         headers: {
-          Authorization: `Bearer ${token.value}`
+          Authorization: `${token.value}`
         }
       })
       

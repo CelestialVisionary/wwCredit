@@ -51,39 +51,46 @@ const handleLogin = async () => {
   }
   
   try {
-    // 设置加载状态
-    isLoading.value = true
-    
-    // 发送登录请求
-    const response = await apiClient.post('/user/login', {
-      mobile: formData.mobile,
-      password: formData.password,
-      userType: formData.userType
-    })
-    
-    console.log('登录成功:', response)
-    
-    // 存储登录状态
-    const token = response.data
-    localStorage.setItem('token', token)
-    userStore.setToken(token)
-    
-    // 获取用户信息
-    await userStore.fetchUserInfo()
-    
-    // 登录成功后跳转到首页
-    router.push('/')
-    
-    // 显示成功提示
-    alert('登录成功')
-  } catch (error: any) {
-    // 处理登录失败
-    console.error('登录失败:', error)
-    errorMessage.value = error.response?.data?.message || '登录失败，请检查手机号和密码是否正确'
-  } finally {
-    // 重置加载状态
-    isLoading.value = false
-  }
+      // 设置加载状态
+      isLoading.value = true
+      
+      // 发送登录请求
+      const response = await apiClient.post('/user/login', {
+        mobile: formData.mobile,
+        password: formData.password,
+        userType: formData.userType
+      })
+      
+      console.log('登录成功:', response)
+      
+      // 解析响应
+      const responseData = response.data
+      if (responseData.code === 200) {
+        // 存储登录状态
+        const token = responseData.data
+        localStorage.setItem('token', token)
+        userStore.setToken(token)
+        
+        // 获取用户信息
+        await userStore.fetchUserInfo()
+        
+        // 登录成功后跳转到首页
+        router.push('/')
+        
+        // 显示成功提示
+        alert('登录成功')
+      } else {
+        // 显示登录失败信息
+        errorMessage.value = responseData.msg || '登录失败'
+      }
+    } catch (error: any) {
+      // 处理登录失败
+      console.error('登录失败:', error)
+      errorMessage.value = error.response?.data?.msg || '登录失败，请检查手机号和密码是否正确'
+    } finally {
+      // 重置加载状态
+      isLoading.value = false
+    }
 }
 
 // 跳转到注册页面

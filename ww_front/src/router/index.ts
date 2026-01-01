@@ -17,6 +17,33 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/borrow-apply',
+    name: 'borrow-apply',
+    component: () => import('../views/BorrowApplyView.vue'),
+    meta: {
+      title: '借款申请',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/borrow-list',
+    name: 'borrow-list',
+    component: () => import('../views/BorrowListView.vue'),
+    meta: {
+      title: '我的借款',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/borrow-detail/:id',
+    name: 'borrow-detail',
+    component: () => import('../views/BorrowDetailView.vue'),
+    meta: {
+      title: '借款详情',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/security',
     name: 'security',
     component: () => import('../views/SecurityView.vue'),
@@ -82,10 +109,20 @@ const router = createRouter({
   }
 })
 
-// 全局前置守卫，设置页面标题
-  router.beforeEach((to, _from, next) => {
-    document.title = to.meta.title ? `${to.meta.title} - 威武信贷` : '威武信贷'
+// 全局前置守卫，设置页面标题和权限控制
+router.beforeEach((to, _from, next) => {
+  document.title = to.meta.title ? `${to.meta.title} - 威武信贷` : '威武信贷'
+  
+  // 检查路由是否需要认证
+  const requiresAuth = to.meta.requiresAuth as boolean
+  const isLoggedIn = !!localStorage.getItem('token')
+  
+  if (requiresAuth && !isLoggedIn) {
+    // 如果需要认证且未登录，重定向到登录页面
+    next({ name: 'login', query: { redirect: to.fullPath } })
+  } else {
     next()
-  })
+  }
+})
 
 export default router

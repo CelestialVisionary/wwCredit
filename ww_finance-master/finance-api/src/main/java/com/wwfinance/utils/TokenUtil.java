@@ -66,11 +66,13 @@ public class TokenUtil {
     /**
      * 生成用户token
      * @param token_phone  用户手机号
+     * @param token_user_id  用户ID
      */
-    public static String generateMerchantToken( String token_phone
+    public static String generateMerchantToken( String token_phone, Long token_user_id
             ) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("token_phone", token_phone);
+        claims.put("token_user_id", token_user_id);
         return tokenHead + localGenerateToken(claims);
     }
 
@@ -88,6 +90,9 @@ public class TokenUtil {
         Claims claims = getClaimsFromToken(token);
         Map<String, String> tokenInfoMap = new HashMap<>();
         tokenInfoMap.put("token_phone", claims.get("token_phone").toString());
+        if (claims.get("token_user_id") != null) {
+            tokenInfoMap.put("token_user_id", claims.get("token_user_id").toString());
+        }
         return tokenInfoMap;
     }
 

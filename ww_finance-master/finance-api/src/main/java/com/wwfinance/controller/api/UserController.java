@@ -7,6 +7,7 @@ import com.wwfinance.entity.UserAccount;
 import com.wwfinance.entity.UserLoginRecord;
 import com.wwfinance.entity.dto.UserDTO;
 import com.wwfinance.entity.dto.UserIndexDTO;
+import com.wwfinance.mapper.UserAccountMapper;
 import com.wwfinance.mapper.UserLoginRecordMapper;
 import com.wwfinance.mapper.UserMapper;
 import com.wwfinance.service.UserService;
@@ -44,6 +45,8 @@ public class UserController {
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private UserLoginRecordMapper userLoginRecordMapper;
+    @Resource
+    private UserAccountMapper userAccountMapper;
 
 
     // 移除实例化，直接使用静态方法
@@ -91,7 +94,7 @@ public class UserController {
         userLoginRecord.setIp(ip);
         userLoginRecordMapper.insert(userLoginRecord);
 
-        String token = TokenUtil.generateMerchantToken(mobile);
+        String token = TokenUtil.generateMerchantToken(mobile, emp.getId());
 
         return new PccAjaxResult(200, "登录成功", token);
 
@@ -99,16 +102,14 @@ public class UserController {
 
     @Operation(summary = "检查手机号是否可用")
     @GetMapping("/checkMobile/{mobile}")
-    public boolean checkMobile(@PathVariable String mobile) {
+    public PccAjaxResult checkMobile(@PathVariable String mobile) {
 
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getMobile, mobile);
 
         User user = userService.getOne(queryWrapper);
-        if(user != null) {
-            return false;
-        }
-        return true;
+        boolean isAvailable = (user == null);
+        return new PccAjaxResult(200, "检查成功", isAvailable);
     }
 
 
@@ -147,9 +148,9 @@ public class UserController {
 
         String code = (String)redisTemplate.opsForValue().get("xx:code:" + userDTO.getMobile());
         log.info(code);
-        /*if(!(code.equals(userDTO.getCode())) ) {
+        if(code == null || !(code.equals(userDTO.getCode())) ) {
             return new PccAjaxResult(500, "验证码错误");
-        }*/
+        }
         if(!(userDTO.getPassword().equals(userDTO.getPasswordto()))) {
             return new PccAjaxResult(500, "两次输入的密码不正确");
         }
@@ -165,7 +166,7 @@ public class UserController {
         //插入用户账户记录：user_account
         UserAccount userAccount = new UserAccount();
         userAccount.setUserId(user.getId());
-       // userAccountService.save(userAccount);
+        userAccountMapper.insert(userAccount);
 
         return new PccAjaxResult(200, "注册成功");
 
