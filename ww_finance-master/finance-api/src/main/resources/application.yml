@@ -1,0 +1,86 @@
+server:
+  port: 8110 # 服务端口
+
+spring:
+  profiles:
+    active: dev # 环境设置
+  application:
+    name: service-core # 服务名
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+      type: com.zaxxer.hikari.HikariDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/ww_finance?serverTimezone=GMT%2B8&characterEncoding=utf-8
+      username: root
+      password: 1234
+  
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+
+# nacos服务地址
+nacos:
+  discovery:
+    server-addr: localhost:8848
+  config:
+    server-addr: localhost:8848
+    file-extension: yml
+
+#mybatis-plus配置
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/com/wwfinance/mapper/*.xml
+  type-aliases-package: com.wwfinance.entity
+
+# 日志配置
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n'
+  file:
+    name: logs/service-core.log
+    max-size: 200MB
+    max-history: 10
+  level:
+    root: info
+
+# SpringDoc OpenAPI 配置
+springdoc:
+  # API文档JSON数据地址
+  api-docs:
+    path: /v3/api-docs
+  # Swagger UI访问地址
+  swagger-ui:
+    path: /index.html
+    operations-sorter: method
+    tags-sorter: alpha
+    url: /v3/api-docs
+  # 扫描Controller包
+  packages-to-scan: com.wwfinance.controller
+  # 全局API文档信息
+  openapi:
+    version: 3.0.1
+    info:
+      title: WWFinance财务系统API文档
+      description: 包含用户管理、账单查询、财务统计等核心接口
+      version: 1.0.0
+      contact:
+        name: 培风图南以星河揽胜
+        email: dev@wwfinance.com
+    # 全局请求头
+    components:
+      securitySchemes:
+        bearerAuth:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      schemas: {}
+    security:
+      - bearerAuth: []
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json

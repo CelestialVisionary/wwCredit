@@ -1,0 +1,30 @@
+spring:
+  profiles:
+    active: dev # 环境设置
+  application:
+    name: service-gateway # 服务名
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848 # nacos服务地址
+        # 配置命名空间
+        namespace: public
+      #        ip: 192.168.65.29
+      config:
+        import-check:
+          enabled: false
+        #        ip: 192.168.65.29
+        # 配置分组
+        group: DEFAULT_GROUP
+        server-addr: localhost:8848
+        # 配置命名空间
+        namespace: public
+        file-extension: yaml
+
+logging:
+  level:
+    com:
+      alibaba:
+        nacos:
+          client: error

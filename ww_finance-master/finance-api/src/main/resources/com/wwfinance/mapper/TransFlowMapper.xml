@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwfinance.mapper.TransFlowMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wwfinance.entity.TransFlow">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="trans_no" property="transNo" />
+        <result column="trans_type" property="transType" />
+        <result column="trans_type_name" property="transTypeName" />
+        <result column="trans_amount" property="transAmount" />
+        <result column="memo" property="memo" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="deleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, user_name, trans_no, trans_type, trans_type_name, trans_amount, memo, create_time, update_time, is_deleted
+    </sql>
+
+</mapper>

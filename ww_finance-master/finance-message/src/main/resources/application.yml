@@ -1,0 +1,60 @@
+server:
+  port: 8120 # 服务端口
+
+spring:
+  profiles:
+    active: dev # 环境设置
+  application:
+    name: service-sms # 服务名
+  
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      password:  #默认为空
+      timeout: 3000ms #最大等待时间，超时则抛出异常，否则请求一直等待
+      client-type: lettuce
+      lettuce:
+        pool:
+          max-active: 20  #最大连接数，负值表示没有限制，默认8
+          max-wait: -1    #最大阻塞等待时间，负值表示没限制，默认-1
+          max-idle: 8     #最大空闲连接，默认8
+          min-idle: 0     #最小空闲连接，默认0
+
+  # Nacos配置已在bootstrap.yml中统一配置
+
+  # RabbitMQ配置
+  # rabbitmq:
+  #   host: 192.168.65.137
+  #   port: 5672
+  #   virtual-host: /
+  #   username: guest
+  #   password: guest
+
+
+# Feign配置
+# feign:
+#   client:
+#     config:
+#       default:
+#         connectTimeout: 10000 #连接超时配置
+#         readTimeout: 600000 #执行超时配置
+#   #开启Feign对Sentinel的支持
+#   sentinel:
+#     enabled: true
+
+logging:
+  level:
+    "[com.tuling.ak.sms.client.CoreUserInfoClient]": DEBUG #以什么级别监控哪个接口
+
+# 短信工具配置
+# 使用custom前缀避免未知属性警告
+custom:
+  sms-util:
+    server-ip: "app.cloopen.com"
+    server-port: "8883"
+    account-s-id: "2c94811c946f6bfb0195f54186194232"
+    account-token: "c16c4ef7675c463f8a66cc1d4056e3b6"
+    app-id: "2c94811c946f6bfb0195f54187b94239"
+    template-id: 1

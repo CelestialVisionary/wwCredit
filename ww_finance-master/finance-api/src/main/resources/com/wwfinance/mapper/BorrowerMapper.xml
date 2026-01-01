@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwfinance.mapper.BorrowerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wwfinance.entity.Borrower">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="name" property="name" />
+        <result column="id_card" property="idCard" />
+        <result column="mobile" property="mobile" />
+        <result column="sex" property="sex" />
+        <result column="age" property="age" />
+        <result column="education" property="education" />
+        <result column="is_marry" property="marry" />
+        <result column="industry" property="industry" />
+        <result column="income" property="income" />
+        <result column="return_source" property="returnSource" />
+        <result column="contacts_name" property="contactsName" />
+        <result column="contacts_mobile" property="contactsMobile" />
+        <result column="contacts_relation" property="contactsRelation" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="deleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, name, id_card, mobile, sex, age, education, is_marry, industry, income, return_source, contacts_name, contacts_mobile, contacts_relation, status, create_time, update_time, is_deleted
+    </sql>
+
+</mapper>

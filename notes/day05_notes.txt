@@ -1,0 +1,68 @@
+项目类型：
+	行业：金融
+	概念：
+		前台：https://www.kongfz.com/ 浏览图书 购买 加入购物车等操作：展示
+		后台：管理前台商品、产品信息、用户信息等等操作
+项目搭建：
+	①数据库：
+		ww_finance ：金融相关
+		ww_bank  ：模拟银行，将来可以放款；
+	②安装node.js：
+		现在是前后端分离的项目，前端使用vue写的，需要node环境；
+		一般前端项目，还需要去安装node环境，指令是npm install -g，但是这个不需要，因为已经安装好了，node_modules下；
+		trae打开ww_front项目，打开终端：npm run dev
+		http://localhost:5173/
+		trae打开ww_admin项目，打开终端：npm run dev
+		http://localhost:5174/
+	③安装启动redis：
+		缓存中间件，用于提升系统性能，存储热点数据；
+		安装步骤：
+			1. 下载Redis安装包（Windows版本）
+			2. 解压到本地目录，如D:\soft\redis
+			3. 配置环境变量，将Redis目录添加到系统PATH中
+		启动方式：
+			1. 服务器启动：redis-server.exe redis.conf
+			2. 客户端启动：redis-cli.exe
+		基本命令：
+			1. 查看所有的key：keys *
+			2. 获取某个key的值：get key名
+			3. 设置某个key的值：set key名 值
+			4. 删除某个key：del key名
+			5. 清空数据库：flushdb（当前数据库）或flushall（所有数据库）
+			6. 查看key的过期时间：ttl key名
+			7. 设置key的过期时间：expire key名 秒数
+	④安装和启动nacos：
+		nacos包含了注册中心、配置中心，与eureka作用类似；
+		端口号：8848
+		默认用户：nacos
+		默认密码：nacos
+		访问地址：localhost:8848/nacos
+		启动方式：在nacos的bin目录下执行startup.cmd（Windows）或startup.sh（Linux）
+
+项目代码分析：
+	前端代码分析：
+		ww_front：用户前台界面，包含浏览、购买等功能
+		ww_admin：管理员后台界面，包含数据管理、用户管理等功能
+		技术栈：Vue 3、TypeScript、Vite
+		主要功能模块：
+			- 首页/数据概览
+			- 用户管理
+			- 产品管理
+			- 订单/交易管理
+
+	后端代码分析：
+		项目结构：
+			finance-base：基础配置，中间件集成，提供项目基础环境
+			finance-common：公共类库，包含通用工具类、常量定义等
+			finance-gateway：网关服务，负责请求路由、负载均衡、权限验证
+			finance-message：消息服务，处理系统通知、消息队列等
+			finance-oss：对象存储服务，处理文件上传下载功能
+			finance-api：业务核心模块，主要业务逻辑实现
+		技术栈：
+			- Spring Boot 2.3.4
+			- Spring Cloud Hoxton.SR8
+			- Spring Cloud Alibaba 2.2.2
+			- MyBatis-Plus 3.4.1
+			- Nacos作为注册中心和配置中心
+			- Redis作为缓存中间件
+		

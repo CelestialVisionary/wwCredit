@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwfinance.mapper.LendMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wwfinance.entity.Lend">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="borrow_info_id" property="borrowInfoId" />
+        <result column="lend_no" property="lendNo" />
+        <result column="title" property="title" />
+        <result column="amount" property="amount" />
+        <result column="period" property="period" />
+        <result column="lend_year_rate" property="lendYearRate" />
+        <result column="service_rate" property="serviceRate" />
+        <result column="return_method" property="returnMethod" />
+        <result column="lowest_amount" property="lowestAmount" />
+        <result column="invest_amount" property="investAmount" />
+        <result column="invest_num" property="investNum" />
+        <result column="publish_date" property="publishDate" />
+        <result column="lend_start_date" property="lendStartDate" />
+        <result column="lend_end_date" property="lendEndDate" />
+        <result column="lend_info" property="lendInfo" />
+        <result column="expect_amount" property="expectAmount" />
+        <result column="real_amount" property="realAmount" />
+        <result column="status" property="status" />
+        <result column="check_time" property="checkTime" />
+        <result column="check_admin_id" property="checkAdminId" />
+        <result column="payment_time" property="paymentTime" />
+        <result column="payment_admin_id" property="paymentAdminId" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="deleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, borrow_info_id, lend_no, title, amount, period, lend_year_rate, service_rate, return_method, lowest_amount, invest_amount, invest_num, publish_date, lend_start_date, lend_end_date, lend_info, expect_amount, real_amount, status, check_time, check_admin_id, payment_time, payment_admin_id, create_time, update_time, is_deleted
+    </sql>
+
+</mapper>

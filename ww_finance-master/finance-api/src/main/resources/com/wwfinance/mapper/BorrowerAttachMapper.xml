@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwfinance.mapper.BorrowerAttachMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wwfinance.entity.BorrowerAttach">
+        <id column="id" property="id" />
+        <result column="borrower_id" property="borrowerId" />
+        <result column="image_type" property="imageType" />
+        <result column="image_url" property="imageUrl" />
+        <result column="image_name" property="imageName" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="deleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, borrower_id, image_type, image_url, image_name, create_time, update_time, is_deleted
+    </sql>
+
+    <!-- 自定义查询方法：根据借款人ID查询附件 -->
+    <select id="selectByBorrowerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM borrower_attach
+        WHERE borrower_id = #{borrowerId}
+        AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

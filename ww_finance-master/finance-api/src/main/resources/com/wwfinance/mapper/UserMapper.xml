@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwfinance.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wwfinance.entity.User">
+        <id column="id" property="id" />
+        <result column="user_type" property="userType" />
+        <result column="mobile" property="mobile" />
+        <result column="password" property="password" />
+        <result column="nick_name" property="nickName" />
+        <result column="name" property="name" />
+        <result column="id_card" property="idCard" />
+        <result column="email" property="email" />
+        <result column="openid" property="openid" />
+        <result column="head_img" property="headImg" />
+        <result column="bind_status" property="bindStatus" />
+        <result column="borrow_auth_status" property="borrowAuthStatus" />
+        <result column="bind_code" property="bindCode" />
+        <result column="integral" property="integral" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="deleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_type, mobile, password, nick_name, name, id_card, email, openid, head_img, bind_status, borrow_auth_status, bind_code, integral, status, create_time, update_time, is_deleted
+    </sql>
+
+
+</mapper>

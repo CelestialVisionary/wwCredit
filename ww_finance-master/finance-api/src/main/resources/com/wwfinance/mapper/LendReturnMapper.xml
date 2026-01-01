@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wwfinance.mapper.LendReturnMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wwfinance.entity.LendReturn">
+        <id column="id" property="id" />
+        <result column="lend_id" property="lendId" />
+        <result column="borrow_info_id" property="borrowInfoId" />
+        <result column="return_no" property="returnNo" />
+        <result column="user_id" property="userId" />
+        <result column="amount" property="amount" />
+        <result column="base_amount" property="baseAmount" />
+        <result column="current_period" property="currentPeriod" />
+        <result column="lend_year_rate" property="lendYearRate" />
+        <result column="return_method" property="returnMethod" />
+        <result column="principal" property="principal" />
+        <result column="interest" property="interest" />
+        <result column="total" property="total" />
+        <result column="fee" property="fee" />
+        <result column="return_date" property="returnDate" />
+        <result column="real_return_time" property="realReturnTime" />
+        <result column="is_overdue" property="overdue" />
+        <result column="overdue_total" property="overdueTotal" />
+        <result column="is_last" property="last" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="deleted" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, lend_id, borrow_info_id, return_no, user_id, amount, base_amount, current_period, lend_year_rate, return_method, principal, interest, total, fee, return_date, real_return_time, is_overdue, overdue_total, is_last, status, create_time, update_time, is_deleted
+    </sql>
+
+    <select id="selectLendReturnByUserId" resultMap="BaseResultMap">
+        select * from lend_return where lend_id = (select id from lend where user_id = #{userId})
+    </select>
+
+
+</mapper>
