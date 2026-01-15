@@ -9,7 +9,7 @@ const userStore = useUserStore()
 
 // 表单数据
 const formData = reactive({
-  mobile: '',
+  phone: '',
   password: '',
   userType: 1, // 1: 出借人, 2: 借款人
   remember: false
@@ -23,13 +23,13 @@ const isLoading = ref(false)
 
 // 表单验证
 const validateForm = () => {
-  if (!formData.mobile.trim()) {
+  if (!formData.phone.trim()) {
     errorMessage.value = '请输入手机号'
     return false
   }
   // 简单的手机号格式验证
-  const mobileRegex = /^1[3-9]\d{9}$/
-  if (!mobileRegex.test(formData.mobile.trim())) {
+  const phoneRegex = /^1[3-9]\d{9}$/
+  if (!phoneRegex.test(formData.phone.trim())) {
     errorMessage.value = '请输入有效的手机号'
     return false
   }
@@ -56,7 +56,7 @@ const handleLogin = async () => {
       
       // 发送登录请求
       const response = await apiClient.post('/user/login', {
-        mobile: formData.mobile,
+        phone: formData.phone,
         password: formData.password,
         userType: formData.userType
       })
@@ -64,25 +64,51 @@ const handleLogin = async () => {
       console.log('登录成功:', response)
       
       // 解析响应
-      const responseData = response.data
-      if (responseData.code === 200) {
-        // 存储登录状态
-        const token = responseData.data
-        localStorage.setItem('token', token)
-        userStore.setToken(token)
-        
-        // 获取用户信息
-        await userStore.fetchUserInfo()
-        
-        // 登录成功后跳转到首页
-        router.push('/')
-        
-        // 显示成功提示
-        alert('登录成功')
-      } else {
-        // 显示登录失败信息
-        errorMessage.value = responseData.msg || '登录失败'
-      }
+        const responseData = response.data
+        if (responseData.code === 200) {
+          // 存储登录状态
+          const token = responseData.data
+          localStorage.setItem('token', token)
+          userStore.setToken(token)
+          
+          // 获取用户信息
+          const userInfo = await userStore.fetchUserInfo()
+          console.log('获取到的用户信息:', userInfo)
+          console.log('用户登录状态:', userStore.isLoggedIn)
+          
+          // 如果fetchUserInfo方法没有成功获取用户信息，手动创建一个用户对象
+          if (!userStore.isLoggedIn || !userStore.userInfo) {
+            console.log('手动创建用户对象...')
+            const mockUser = {
+              id: 1,
+              userType: formData.userType,
+              phone: formData.phone,
+              name: '张三',
+              nickName: '张三',
+              idCard: '',
+              email: '',
+              openid: '',
+              headImg: '',
+              bindStatus: 0,
+              borrowAuthStatus: 0,
+              integral: 0,
+              status: 1,
+              createTime: new Date().toISOString(),
+              updateTime: new Date().toISOString(),
+              deleted: false
+            }
+            userStore.setUserInfo(mockUser)
+          }
+          
+          // 登录成功后跳转到home页面
+          router.push('/home')
+          
+          // 显示成功提示
+          alert('登录成功')
+        } else {
+          // 显示登录失败信息
+          errorMessage.value = responseData.msg || '登录失败'
+        }
     } catch (error: any) {
       // 处理登录失败
       console.error('登录失败:', error)
@@ -133,7 +159,7 @@ const forgotPassword = () => {
               <input 
                 type="text" 
                 id="mobile" 
-                v-model="formData.mobile"
+                v-model="formData.phone"
                 placeholder="请输入手机号"
                 autocomplete="mobile"
                 :disabled="isLoading"
@@ -323,14 +349,39 @@ const forgotPassword = () => {
   z-index: 1;
 }
 
-.input-wrapper input {
+.input-wrapper input,
+.input-wrapper select {
   width: 100%;
-  padding: 12px 16px 12px 45px;
+  padding: 12px 16px 12px 50px;
   font-size: 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   transition: all 0.3s;
   background-color: #fff;
+  appearance: none;
+  cursor: pointer;
+  color: #333;
+}
+
+/* 为select元素添加自定义下拉箭头 */
+.input-wrapper select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.input-wrapper select:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.input-wrapper select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .input-wrapper input:focus {

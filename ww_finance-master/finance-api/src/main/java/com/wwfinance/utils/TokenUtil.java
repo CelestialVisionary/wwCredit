@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class TokenUtil {
 
-    private final static String secret = "vsofo-5grcs-secret"; // 加解密密匙
+    private final static String secret = "vsofo-5grcs-secret-key-1234567890-abcdefghijk"; // 加解密密匙（至少32字节）
     private final static long expiration = 604800; // 过期时间/秒
     private final static String tokenHead = "5grcs "; // #JWT负载中拿到开头
 
@@ -59,8 +59,26 @@ public class TokenUtil {
         if (claims == null) {
             return true;
         }
-
-        return false;
+        
+        // 检查token是否过期
+        return claims.getExpiration().before(new java.util.Date());
+    }
+    
+    /**
+     * 获取token的过期时间
+     * 
+     * @param token token字符串
+     * @return 过期时间的时间戳（秒）
+     */
+    public static long getTokenExpiration(String token) {
+        if (token.startsWith(tokenHead)) {
+            token = token.substring(tokenHead.length());
+        }
+        Claims claims = getClaimsFromToken(token);
+        if (claims == null) {
+            return 0;
+        }
+        return claims.getExpiration().getTime() / 1000;
     }
 
     /**

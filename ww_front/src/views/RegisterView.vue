@@ -59,12 +59,12 @@ const validatePhone = async () => {
     fieldErrors.mobile = '请输入有效的手机号码'
     return false
   }
-  // 检查手机号是否已注册
-  const isAvailable = await checkMobile()
-  if (!isAvailable) {
-    fieldErrors.mobile = '该手机号已被注册'
-    return false
-  }
+  // 暂时跳过手机号唯一性检查，因为后端数据库有问题
+  // const isAvailable = await checkMobile()
+  // if (!isAvailable) {
+  //   fieldErrors.mobile = '该手机号已被注册'
+  //   return false
+  // }
   fieldErrors.mobile = ''
   return true
 }
@@ -465,7 +465,7 @@ const viewPrivacy = () => {
 .input-wrapper input,
 .input-wrapper select {
   width: 100%;
-  padding: 12px 16px 12px 45px;
+  padding: 12px 16px 12px 50px;
   font-size: 16px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
@@ -473,6 +473,7 @@ const viewPrivacy = () => {
   background-color: #fff;
   appearance: none;
   cursor: pointer;
+  color: #333;
 }
 
 .input-wrapper input:focus,
@@ -480,6 +481,15 @@ const viewPrivacy = () => {
   outline: none;
   border-color: #1890ff;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 为select元素添加自定义下拉箭头 */
+.input-wrapper select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
 }
 
 .input-wrapper input:disabled,

@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user'
 
 const router = useRouter()
 const isMenuOpen = ref(false)
+const isDropdownOpen = ref(false)
+const userStore = useUserStore()
 
 // 导航菜单项定义
 const navItems = [
@@ -14,6 +17,17 @@ const navItems = [
   { label: '关于我们', path: '/about' }
 ]
 
+// 个人中心下拉菜单项
+const dropdownItems = [
+  { label: '个人中心', path: '/profile' },
+  { label: '修改头像', path: '/profile/avatar' },
+  { label: '修改密码', path: '/profile/password' }
+]
+
+// 计算登录状态
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+const userInfo = computed(() => userStore.userInfo)
+
 const handleLogin = () => {
   router.push('/login')
 }
@@ -22,9 +36,42 @@ const handleRegister = () => {
   router.push('/register')
 }
 
+const handleLogout = () => {
+  userStore.logout()
+  router.push('/login')
+  isDropdownOpen.value = false
+}
+
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value
+}
+
+// 点击下拉菜单项
+const handleDropdownItemClick = (path: string) => {
+  router.push(path)
+  isDropdownOpen.value = false
+}
+
+// 点击外部关闭下拉菜单
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.user-dropdown')) {
+    isDropdownOpen.value = false
+  }
+}
+
+// 添加点击外部关闭下拉菜单的事件监听
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
@@ -52,8 +99,40 @@ const toggleMenu = () => {
       </nav>
       
       <div class="nav-actions">
-        <button @click="handleLogin" class="btn-login">登录</button>
-        <button @click="handleRegister" class="btn-register">注册</button>
+        <!-- 登录状态显示 - 带下拉菜单 -->
+        <div v-if="isLoggedIn" class="user-dropdown">
+          <div 
+            class="user-info" 
+            @click="toggleDropdown"
+          >
+            <div class="user-avatar">👤</div>
+            <span class="user-name">{{ userInfo?.name || '用户' }}</span>
+            <span class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }">▼</span>
+          </div>
+          
+          <!-- 下拉菜单 -->
+          <div class="dropdown-menu" :class="{ 'open': isDropdownOpen }">
+            <div 
+              v-for="item in dropdownItems" 
+              :key="item.path" 
+              class="dropdown-item"
+              @click="handleDropdownItemClick(item.path)"
+            >
+              {{ item.label }}
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item logout" @click="handleLogout">
+              退出登录
+            </div>
+          </div>
+        </div>
+        
+        <!-- 未登录状态显示 -->
+        <div v-else>
+          <button @click="handleLogin" class="btn-login">登录</button>
+          <button @click="handleRegister" class="btn-register">注册</button>
+        </div>
+        
         <button class="btn-menu-toggle" @click="toggleMenu" aria-label="菜单">
           <span class="menu-icon"></span>
         </button>
@@ -193,6 +272,111 @@ const toggleMenu = () => {
 
 .btn-register:hover {
   background-color: #40a9ff;
+}
+
+/* 用户下拉菜单样式 */
+.user-dropdown {
+  position: relative;
+  margin-right: 10px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.user-info:hover {
+  background-color: #f5f7fa;
+}
+
+.user-avatar {
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.user-name {
+  color: #333;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  color: #909399;
+  transition: transform 0.3s;
+}
+
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+/* 下拉菜单 */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  min-width: 160px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s;
+}
+
+.dropdown-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  color: #606266;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background-color: #ecf5ff;
+  color: #409eff;
+}
+
+.dropdown-item.logout:hover {
+  background-color: #fef0f0;
+  color: #f56c6c;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #ebeef5;
+  margin: 5px 0;
+}
+
+/* 退出登录按钮 */
+.btn-logout {
+  padding: 6px 12px;
+  background-color: transparent;
+  color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-logout:hover {
+  background-color: #ff4d4f;
+  color: white;
 }
 
 .btn-menu-toggle {

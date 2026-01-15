@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,15 +12,14 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 用户账户
+ * 公告表
  * </p>
- *
  */
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("user_account")
-public class UserAccount implements Serializable {
+@TableName("announcement")
+public class Announcement implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,34 +30,33 @@ public class UserAccount implements Serializable {
     private Integer id;
 
     /**
-     * 用户id
+     * 标题
      */
-    @TableField("user_id")
-    private Integer userId;
+    @TableField("title")
+    private String title;
 
     /**
-     * 账户可用余额
+     * 内容
      */
-    @TableField("account_balance")
-    private BigDecimal accountBalance;
+    @TableField("content")
+    private String content;
 
     /**
-     * 冻结金额
+     * 发布时间
      */
-    @TableField("frozen_amount")
-    private BigDecimal frozenAmount;
+    @TableField("publish_date")
+    private LocalDateTime publishDate;
 
     /**
-     * 总收入
+     * 分类
      */
-    @TableField("total_income")
-    private BigDecimal totalIncome;
+    @TableField("category")
+    private String category;
 
     /**
-     * 最后更新时间
+     * 是否置顶 0：否 1：是
      */
-    @TableField("last_update_time")
-    private LocalDateTime lastUpdateTime;
-
+    @TableField("is_top")
+    private Integer isTop;
 
 }

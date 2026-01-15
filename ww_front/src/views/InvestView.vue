@@ -21,6 +21,20 @@ const filters = ref({
   minAmount: 0
 })
 
+// 处理最小收益率变化
+const handleMinRateChange = () => {
+  if (filters.value.minRate > filters.value.maxRate) {
+    filters.value.maxRate = filters.value.minRate
+  }
+}
+
+// 处理最大收益率变化
+const handleMaxRateChange = () => {
+  if (filters.value.maxRate < filters.value.minRate) {
+    filters.value.minRate = filters.value.maxRate
+  }
+}
+
 // 模拟产品数据
 const allProducts = ref([
   {
@@ -213,49 +227,61 @@ onMounted(() => {
         
         <!-- 高级筛选 -->
         <div class="advanced-filters">
-          <div class="filter-group">
-            <label>收益率范围：</label>
-            <div class="rate-slider">
-              <input 
-                type="range" 
-                v-model.number="filters.minRate" 
-                min="0" 
-                max="20" 
-                step="0.1"
-              />
-              <span>{{ filters.minRate }}%</span>
-              <span>-</span>
-              <input 
-                type="range" 
-                v-model.number="filters.maxRate" 
-                min="0" 
-                max="20" 
-                step="0.1"
-              />
-              <span>{{ filters.maxRate }}%</span>
+          <div class="filter-row">
+            <div class="filter-item">
+              <label>收益率范围：</label>
+              <div class="rate-slider">
+                <div class="slider-group">
+                  <span class="slider-label">最小：</span>
+                  <input 
+                    type="range" 
+                    v-model.number="filters.minRate" 
+                    min="0" 
+                    max="20" 
+                    step="0.1"
+                    @input="handleMinRateChange"
+                  />
+                  <span class="slider-value">{{ filters.minRate }}%</span>
+                </div>
+                <span class="range-separator">至</span>
+                <div class="slider-group">
+                  <span class="slider-label">最大：</span>
+                  <input 
+                    type="range" 
+                    v-model.number="filters.maxRate" 
+                    min="0" 
+                    max="20" 
+                    step="0.1"
+                    @input="handleMaxRateChange"
+                  />
+                  <span class="slider-value">{{ filters.maxRate }}%</span>
+                </div>
+              </div>
             </div>
           </div>
           
-          <div class="filter-group">
-            <label>投资期限：</label>
-            <select v-model="filters.period">
-              <option value="all">全部期限</option>
-              <option value="1m">1个月</option>
-              <option value="3m">3个月</option>
-              <option value="6m">6个月</option>
-              <option value="12m">12个月</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <label>起投金额：</label>
-            <select v-model.number="filters.minAmount">
-              <option :value="0">不限</option>
-              <option :value="100">100元</option>
-              <option :value="1000">1000元</option>
-              <option :value="5000">5000元</option>
-              <option :value="10000">10000元</option>
-            </select>
+          <div class="filter-row">
+            <div class="filter-item">
+              <label>投资期限：</label>
+              <select v-model="filters.period">
+                <option value="all">全部期限</option>
+                <option value="1m">1个月</option>
+                <option value="3m">3个月</option>
+                <option value="6m">6个月</option>
+                <option value="12m">12个月</option>
+              </select>
+            </div>
+            
+            <div class="filter-item">
+              <label>起投金额：</label>
+              <select v-model.number="filters.minAmount">
+                <option :value="0">不限</option>
+                <option :value="100">100元</option>
+                <option :value="1000">1000元</option>
+                <option :value="5000">5000元</option>
+                <option :value="10000">10000元</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -383,11 +409,13 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.3s;
   font-size: 14px;
+  color: #666; /* 默认文字为灰色 */
 }
 
 .category-btn:hover {
   border-color: #1890ff;
   color: #1890ff;
+  background-color: #f0f9ff;
 }
 
 .category-btn.active {
@@ -397,48 +425,93 @@ onMounted(() => {
 }
 
 .advanced-filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
   padding-top: 20px;
   border-top: 1px solid #f0f0f0;
 }
 
-.filter-group {
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.filter-item {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 250px;
 }
 
-.filter-group label {
+.filter-item label {
   font-size: 14px;
   color: #333;
   white-space: nowrap;
+  width: 80px;
 }
 
-.filter-group select {
+.filter-item select {
   padding: 6px 12px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background-color: white;
+  color: #333; /* 设置文字颜色为深色，确保可见 */
   cursor: pointer;
+  min-width: 150px;
+  flex: 0 0 auto;
+}
+
+/* 设置下拉选项的文字颜色 */
+.filter-item select option {
+  color: #333; /* 下拉选项文字为深色 */
+  background-color: white; /* 下拉选项背景为白色 */
 }
 
 .rate-slider {
   display: flex;
   align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 500px;
+}
+
+.slider-group {
+  display: flex;
+  align-items: center;
   gap: 8px;
   flex: 1;
+  min-width: 200px;
+}
+
+.slider-label {
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+  min-width: 40px;
+}
+
+.slider-value {
+  font-size: 14px;
+  color: #1890ff;
+  font-weight: 500;
+  min-width: 50px;
 }
 
 .rate-slider input[type="range"] {
   flex: 1;
+  min-width: 120px;
 }
 
-.rate-slider span {
-  font-size: 14px;
+.range-separator {
+  font-size: 16px;
   color: #666;
-  min-width: 40px;
+  font-weight: bold;
+  margin: 0 8px;
 }
 
 /* 产品列表 */

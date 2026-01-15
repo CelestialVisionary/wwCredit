@@ -1,6 +1,9 @@
 package com.wwfinance.config;
 
 import com.wwfinance.mapper.*;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.annotation.DbType;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +18,20 @@ public class MyBatisConfig {
     @Resource
     private SqlSessionTemplate sqlSessionTemplate;
 
+    // 配置MyBatis Plus分页插件
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        return interceptor;
+    }
+
     // 手动注册所有Mapper Bean，完全绕过注解扫描和解析
+    @Bean
+    public AnnouncementMapper announcementMapper() {
+        return sqlSessionTemplate.getMapper(AnnouncementMapper.class);
+    }
+    
     @Bean
     public BorrowInfoMapper borrowInfoMapper() {
         return sqlSessionTemplate.getMapper(BorrowInfoMapper.class);

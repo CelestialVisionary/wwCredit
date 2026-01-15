@@ -1,5 +1,6 @@
 package com.wwfinance.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -27,37 +28,31 @@ public class User implements Serializable {
      * 编号
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    private Integer id;
 
     /**
-     * 1：出借人 2：借款人
+     * 用户名
      */
-    @TableField("user_type")
-    private Integer userType;
-
+    @TableField("username")
+    private String username;
+    
     /**
-     * 手机号
+     * 用户名称（用于前端显示）
      */
-    @TableField("mobile")
-    private String mobile;
+    @TableField(exist = false)
+    private String name;
 
     /**
-     * 用户密码
+     * 密码
      */
     @TableField("password")
     private String password;
 
     /**
-     * 用户昵称
+     * 真实姓名
      */
-    @TableField("nick_name")
-    private String nickName;
-
-    /**
-     * 用户姓名
-     */
-    @TableField("name")
-    private String name;
+    @TableField("real_name")
+    private String realName;
 
     /**
      * 身份证号
@@ -66,46 +61,22 @@ public class User implements Serializable {
     private String idCard;
 
     /**
+     * 手机号
+     */
+    @TableField("phone")
+    private String phone;
+
+    /**
      * 邮箱
      */
     @TableField("email")
     private String email;
 
     /**
-     * 微信用户标识openid
+     * 用户类型 1：出借人 2：借款人
      */
-    @TableField("openid")
-    private String openid;
-
-    /**
-     * 头像
-     */
-    @TableField("head_img")
-    private String headImg;
-
-    /**
-     * 绑定状态（0：未绑定，1：绑定成功 -1：绑定失败）
-     */
-    @TableField("bind_status")
-    private Integer bindStatus;
-
-    /**
-     * 借款人认证状态（0：未认证 1：认证中 2：认证通过 -1：认证失败）
-     */
-    @TableField("borrow_auth_status")
-    private Integer borrowAuthStatus;
-
-    /**
-     * 绑定账户协议号
-     */
-    @TableField("bind_code")
-    private String bindCode;
-
-    /**
-     * 用户积分
-     */
-    @TableField("integral")
-    private Integer integral;
+    @TableField("user_type")
+    private Integer userType;
 
     /**
      * 状态（0：锁定 1：正常）
@@ -118,18 +89,6 @@ public class User implements Serializable {
      */
     @TableField("create_time")
     private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    @TableField("update_time")
-    private LocalDateTime updateTime;
-
-    /**
-     * 逻辑删除(1:已删除，0:未删除)
-     */
-    @TableField("is_deleted")
-    private Boolean deleted;
 
 
 }

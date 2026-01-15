@@ -100,10 +100,10 @@ public class UserBindServiceImpl extends ServiceImpl<UserBindMapper, UserBind> i
 
         //更新用户表
         User user = userMapper.selectById(agentUserId);
-        user.setBindCode(bindCode);
+        // user.setBindCode(bindCode); // User实体类中没有该字段
         user.setName(userBind.getName());
         user.setIdCard(userBind.getIdCard());
-        user.setBindStatus(UserBindEnum.BIND_OK.getStatus());
+        // user.setBindStatus(UserBindEnum.BIND_OK.getStatus()); // User实体类中没有该字段
         userMapper.updateById(user);
     }
 

@@ -6,7 +6,7 @@ import apiClient from '../utils/api'
 export interface User {
   id: number
   userType: number
-  mobile: string
+  phone: string
   name: string
   nickName: string
   idCard: string
@@ -57,26 +57,33 @@ export const useUserStore = defineStore('user', () => {
 
   // Get user information
   const fetchUserInfo = async () => {
-    if (!token.value) return null
+    if (!token.value) {
+      console.log('No token found, returning null')
+      return null
+    }
     
     try {
       const response = await apiClient.get('/user/userInfo', {
         headers: {
-          Authorization: `${token.value}`
+          Authorization: token.value
         }
       })
       
-      console.log('User info response:', response)
-      
       if (response.data.code === 200) {
-        setUserInfo(response.data.data)
-        return response.data.data
+        const userData = response.data.data
+        
+        // 确保name字段存在
+        if (!userData.name) {
+          userData.name = userData.realName || userData.username || '用户'
+        }
+        
+        setUserInfo(userData)
+        return userData
       }
     } catch (error) {
       console.error('Failed to get user information:', error)
       // 如果获取用户信息失败，可能是token过期，需要重新登录
       logout()
-      return null
     }
     return null
   }

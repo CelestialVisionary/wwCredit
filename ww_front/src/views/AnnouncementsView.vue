@@ -422,6 +422,7 @@ onMounted(() => {
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background-color: white;
+  color: #333; /* 设置文字颜色为深色，确保可见 */
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -429,6 +430,12 @@ onMounted(() => {
 .filter-box select:focus {
   outline: none;
   border-color: #1890ff;
+}
+
+/* 设置下拉选项的文字颜色 */
+.filter-box select option {
+  color: #333; /* 下拉选项文字为深色 */
+  background-color: white; /* 下拉选项背景为白色 */
 }
 
 /* 公告列表 */

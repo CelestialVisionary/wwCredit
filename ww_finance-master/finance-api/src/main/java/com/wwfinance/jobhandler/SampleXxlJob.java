@@ -55,7 +55,7 @@ public class SampleXxlJob {
                 QueryWrapper<User> queryWrapper1 = new QueryWrapper<>();
                 queryWrapper1.eq("id", lendReturn.getUserId());
                 User user = userService.getOne(queryWrapper1);
-                smsApiSmsClient.sendMsg(user.getMobile());
+                smsApiSmsClient.sendMsg(user.getPhone());
                 log.info("还款时间剩余天数小于等于3天，请尽快还款");
             }
         }

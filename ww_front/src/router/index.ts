@@ -9,6 +9,11 @@ const routes: Array<RouteRecordRaw> = [
     component: HomeView
   },
   {
+    path: '/home',
+    name: 'homeView',
+    component: HomeView
+  },
+  {
     path: '/invest',
     name: 'invest',
     component: () => import('../views/InvestView.vue'),
@@ -40,6 +45,33 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/BorrowDetailView.vue'),
     meta: {
       title: '借款详情',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../views/ProfileView.vue'),
+    meta: {
+      title: '个人中心',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/profile/avatar',
+    name: 'profile-avatar',
+    component: () => import('../views/AvatarView.vue'),
+    meta: {
+      title: '修改头像',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/profile/password',
+    name: 'profile-password',
+    component: () => import('../views/PasswordView.vue'),
+    meta: {
+      title: '修改密码',
       requiresAuth: true
     }
   },

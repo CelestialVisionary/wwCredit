@@ -9,8 +9,12 @@ import { useUserStore } from './stores/user'
 onMounted(async () => {
   const userStore = useUserStore()
   const token = userStore.token
+  console.log('App.vue - onMounted, token:', token)
+  
   if (token) {
-    await userStore.fetchUserInfo()
+    console.log('App.vue - fetching user info...')
+    const userInfo = await userStore.fetchUserInfo()
+    console.log('App.vue - fetched user info:', userInfo)
   }
 })
 </script>

@@ -49,7 +49,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void lock(Long id, Integer status) {
         User user = new User();
-        user.setId(id);
+        user.setId(id.intValue());
         user.setStatus(status);
         baseMapper.updateById(user);
     }
@@ -73,14 +73,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         //组装结果数据
         UserIndexDTO userIndexDTO = new UserIndexDTO();
-        userIndexDTO.setUserId(user.getId());
+        userIndexDTO.setUserId(Long.valueOf(user.getId()));
         userIndexDTO.setUserType(user.getUserType());
-        userIndexDTO.setName(user.getName());
-        userIndexDTO.setNickName(user.getNickName());
-        userIndexDTO.setHeadImg(user.getHeadImg());
-        userIndexDTO.setBindStatus(user.getBindStatus());
-        userIndexDTO.setAmount(userAccount.getAmount());
-        userIndexDTO.setFreezeAmount(userAccount.getFreezeAmount());
+        userIndexDTO.setName(user.getRealName());
+        userIndexDTO.setNickName(user.getUsername());
+        userIndexDTO.setHeadImg(user.getEmail()); // 使用email字段临时替代headImg
+        userIndexDTO.setBindStatus(0); // 设置默认绑定状态
+        userIndexDTO.setAmount(userAccount.getAccountBalance());
+        userIndexDTO.setFreezeAmount(userAccount.getFrozenAmount());
         userIndexDTO.setLastLoginTime(userLoginRecord == null ? null :userLoginRecord.getCreateTime());
         return userIndexDTO;
     }

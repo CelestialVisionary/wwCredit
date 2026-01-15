@@ -254,11 +254,13 @@ const contactInfo = ref({
   font-size: 40px;
   font-weight: bold;
   margin-bottom: 16px;
+  text-align: center;
 }
 
 .page-header p {
   font-size: 18px;
   opacity: 0.9;
+  text-align: center;
 }
 
 /* 通用标题 */

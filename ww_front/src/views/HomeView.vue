@@ -1,429 +1,328 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import apiClient from '../utils/api'
 
-// 产品数据
-const products = ref([
-  {
-    id: 1,
-    name: '稳健理财',
-    rate: '5.2%',
-    period: '3个月',
-    minInvest: '1000元',
-    status: 'hot'
-  },
-  {
-    id: 2,
-    name: '尊享收益',
-    rate: '7.5%',
-    period: '6个月',
-    minInvest: '5000元',
-    status: 'new'
-  },
-  {
-    id: 3,
-    name: '灵活宝',
-    rate: '4.8%',
-    period: '活期',
-    minInvest: '100元',
-    status: 'popular'
-  }
-])
+// 定义公告接口
+interface Announcement {
+  id: number;
+  title: string;
+  content: string;
+  publishDate: string;
+  category: string;
+  isTop: number;
+}
 
 // 公告数据
-const announcements = ref([
-  {
-    id: 1,
-    title: '系统维护通知',
-    content: '尊敬的用户，我们将于今晚22:00至次日凌晨02:00进行系统维护，请提前做好准备。',
-    time: '刚刚'
-  },
-  {
-    id: 2,
-    title: '新用户注册送豪礼',
-    content: '即日起，新用户注册即可获得1000元投资体验金，限时活动，先到先得！',
-    time: '2小时前'
-  },
-  {
-    id: 3,
-    title: '平台运营数据公示',
-    content: '2025年10月运营数据已更新，累计成交额突破10亿，逾期率0.01%。',
-    time: '1天前'
-  }
-])
+const announcements = ref<Announcement[]>([])
 
-// 安全保障特点
-const securityFeatures = ref([
-  {
-    icon: '🔒',
-    title: '资金安全',
-    description: '银行存管，资金流向透明，多重加密保障'
-  },
-  {
-    icon: '🛡️',
-    title: '风控保障',
-    description: '专业风控团队，严格审核流程，风险可控'
-  },
-  {
-    icon: '📝',
-    title: '法律保障',
-    description: '合规经营，专业律师团队，法律权益保障'
-  },
-  {
-    icon: '👨‍💼',
-    title: '团队保障',
-    description: '金融精英团队，多年行业经验，专业可靠'
+// 获取最新公告
+const fetchAnnouncements = async () => {
+  try {
+    const response = await apiClient.get('/announcement/latest')
+    if (response.data.code === 200) {
+      announcements.value = response.data.data
+    }
+  } catch (error) {
+    console.error('获取公告失败:', error)
   }
-])
+}
 
-// 模拟数据统计
-const stats = ref({
-  totalUsers: '258,369',
-  totalInvestment: '10.58亿',
-  avgRate: '6.8%',
-  totalTransactions: '432,156'
+// 格式化时间
+const formatTime = (dateString: string) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  
+  if (minutes < 60) {
+    return '刚刚'
+  } else if (hours < 24) {
+    return `${hours}小时前`
+  } else if (days < 7) {
+    return `${days}天前`
+  } else {
+    return date.toLocaleDateString()
+  }
+}
+
+// 组件挂载时获取公告
+onMounted(() => {
+  fetchAnnouncements()
 })
 </script>
 
 <template>
-  <div class="home-page">
-    <!-- 横幅广告 -->
-    <section class="banner">
-      <div class="container">
-        <div class="banner-content">
+  <div class="home-view">
+    <div class="home-container">
+      <!-- 左侧导航栏 -->
+      <aside class="sidebar">
+        <div class="sidebar-content">
+          <div class="sidebar-header">
+            <h2>用户中心</h2>
+          </div>
+          
+          <nav class="sidebar-nav">
+            <ul class="nav-list">
+              <!-- 投资管理 -->
+              <li class="nav-item">
+                <h3 class="nav-title">投资管理</h3>
+                <ul class="nav-submenu">
+                  <li class="nav-subitem">
+                    <a href="/invest" class="nav-link">我要投资</a>
+                  </li>
+                  <li class="nav-subitem">
+                    <a href="/invest/records" class="nav-link">投资记录</a>
+                  </li>
+                </ul>
+              </li>
+              
+              <!-- 借款管理 -->
+              <li class="nav-item">
+                <h3 class="nav-title">借款管理</h3>
+                <ul class="nav-submenu">
+                  <li class="nav-subitem">
+                    <a href="/borrow-apply" class="nav-link">我要借款</a>
+                  </li>
+                  <li class="nav-subitem">
+                    <a href="/borrow/records" class="nav-link">借款记录</a>
+                  </li>
+                </ul>
+              </li>
+              
+              <!-- 资金管理 -->
+            <li class="nav-item">
+              <h3 class="nav-title">资金管理</h3>
+              <ul class="nav-submenu">
+                <li class="nav-subitem">
+                  <a href="/fund/records" class="nav-link">资金记录</a>
+                </li>
+                <li class="nav-subitem">
+                  <a href="/fund/recharge" class="nav-link">充值</a>
+                </li>
+                <li class="nav-subitem">
+                  <a href="/fund/withdraw" class="nav-link">提现</a>
+                </li>
+              </ul>
+            </li>
+            
+            <!-- 个人中心 -->
+            <li class="nav-item">
+              <h3 class="nav-title">个人中心</h3>
+              <ul class="nav-submenu">
+                <li class="nav-subitem">
+                  <a href="/profile/avatar" class="nav-link">修改头像</a>
+                </li>
+                <li class="nav-subitem">
+                  <a href="/profile/password" class="nav-link">修改密码</a>
+                </li>
+              </ul>
+            </li>
+            
+            <!-- 还款计划 -->
+            <li class="nav-item">
+              <a href="/repayment/plans" class="nav-link">还款计划</a>
+            </li>
+            </ul>
+          </nav>
+        </div>
+      </aside>
+      
+      <!-- 右侧内容区域 -->
+      <main class="main-content">
+        <!-- 欢迎横幅 -->
+        <section class="welcome-banner">
           <h1>威武信贷</h1>
           <p>让金融服务更简单</p>
-          <button class="btn btn-primary banner-btn">立即投资</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 平台数据 -->
-    <section class="platform-stats">
-      <div class="container">
-        <div class="stats-grid">
-          <div class="stat-item">
-            <h3>{{ stats.totalUsers }}</h3>
-            <p>注册用户</p>
+        </section>
+        
+        <!-- 最新公告 -->
+        <section class="announcements-section">
+          <div class="section-header">
+            <h2>最新公告</h2>
           </div>
-          <div class="stat-item">
-            <h3>{{ stats.totalInvestment }}</h3>
-            <p>累计投资</p>
-          </div>
-          <div class="stat-item">
-            <h3>{{ stats.avgRate }}</h3>
-            <p>平均收益率</p>
-          </div>
-          <div class="stat-item">
-            <h3>{{ stats.totalTransactions }}</h3>
-            <p>交易笔数</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 热门产品 -->
-    <section class="products-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>热门产品</h2>
-          <a href="/invest" class="view-more">查看更多</a>
-        </div>
-        <div class="products-grid">
-          <div v-for="product in products" :key="product.id" class="product-card card">
-            <div class="product-header">
-              <h3>{{ product.name }}</h3>
-              <span v-if="product.status === 'hot'" class="status-badge hot">热门</span>
-              <span v-else-if="product.status === 'new'" class="status-badge new">新品</span>
-              <span v-else-if="product.status === 'popular'" class="status-badge popular">人气</span>
-            </div>
-            <div class="product-rate">
-              <span class="rate-number">{{ product.rate }}</span>
-              <span class="rate-unit">预期年化</span>
-            </div>
-            <div class="product-info">
-              <div class="info-item">
-                <span class="info-label">投资期限</span>
-                <span class="info-value">{{ product.period }}</span>
+          <div class="announcements-list">
+            <div v-for="announcement in announcements" :key="announcement.id" class="announcement-item">
+              <div class="announcement-content">
+                <h3>{{ announcement.title }}</h3>
+                <p>{{ announcement.content }}</p>
               </div>
-              <div class="info-item">
-                <span class="info-label">起投金额</span>
-                <span class="info-value">{{ product.minInvest }}</span>
+              <div class="announcement-time">{{ formatTime(announcement.publishDate) }}</div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- 安全提示 -->
+        <section class="security-tips-section">
+          <div class="section-header">
+            <h2>安全提示</h2>
+          </div>
+          <div class="security-tips-list">
+            <div class="security-tip">
+              <div class="security-icon">🔒</div>
+              <div class="security-content">
+                <h3>账户安全</h3>
+                <p>请妥善保管您的账号密码，不要向他人透露</p>
               </div>
             </div>
-            <button class="btn btn-primary product-btn">立即投资</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 安全保障 -->
-    <section class="security-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>安全保障</h2>
-        </div>
-        <div class="security-grid">
-          <div v-for="(feature, index) in securityFeatures" :key="index" class="security-item">
-            <div class="security-icon">{{ feature.icon }}</div>
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 最新公告 -->
-    <section class="announcements-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>最新公告</h2>
-          <a href="/announcements" class="view-more">更多公告</a>
-        </div>
-        <div class="announcements-list card">
-          <div v-for="announcement in announcements" :key="announcement.id" class="announcement-item">
-            <div class="announcement-content">
-              <h3>{{ announcement.title }}</h3>
-              <p>{{ announcement.content }}</p>
+            <div class="security-tip">
+              <div class="security-icon">⚠️</div>
+              <div class="security-content">
+                <h3>警惕诈骗</h3>
+                <p>不要轻信陌生人的投资建议，避免财产损失</p>
+              </div>
             </div>
-            <div class="announcement-time">{{ announcement.time }}</div>
+            <div class="security-tip">
+              <div class="security-icon">📱</div>
+              <div class="security-content">
+                <h3>手机验证</h3>
+                <p>建议开启手机验证，提高账号安全性</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
+      </main>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.home-page {
-  padding-bottom: 40px;
+.home-view {
+  background-color: #f5f7fa;
+  min-height: calc(100vh - 64px - 200px);
 }
 
-/* 横幅样式 */
-.banner {
-  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
-  color: white;
-  padding: 80px 0;
-  margin-bottom: 40px;
+.home-container {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.banner-content {
-  text-align: center;
-}
-
-.banner-content h1 {
-  font-size: 48px;
-  margin-bottom: 16px;
-  font-weight: bold;
-}
-
-.banner-content p {
-  font-size: 20px;
-  margin-bottom: 32px;
-  opacity: 0.9;
-}
-
-.banner-btn {
-  padding: 12px 32px;
-  font-size: 18px;
-  border-radius: 6px;
-}
-
-/* 平台数据 */
-.platform-stats {
+/* 左侧导航栏 */
+.sidebar {
+  width: 240px;
   background-color: white;
-  padding: 40px 0;
-  margin-bottom: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-right: 20px;
+  flex-shrink: 0;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 30px;
+.sidebar-content {
+  padding: 20px;
+}
+
+.sidebar-header h2 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
   text-align: center;
 }
 
-.stat-item h3 {
-  font-size: 32px;
-  color: #1890ff;
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  margin-bottom: 16px;
+}
+
+.nav-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 12px;
+  padding-left: 8px;
+  border-left: 3px solid #1890ff;
+}
+
+.nav-submenu {
+  list-style: none;
+  padding-left: 24px;
+  margin: 0;
+}
+
+.nav-subitem {
   margin-bottom: 8px;
 }
 
-.stat-item p {
+.nav-link {
+  display: block;
+  padding: 8px 12px;
   color: #666;
-  font-size: 14px;
-}
-
-/* 通用部分标题 */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.section-header h2 {
-  font-size: 24px;
-  color: #333;
-}
-
-.view-more {
-  color: #1890ff;
-  font-size: 14px;
-}
-
-/* 产品部分 */
-.products-section {
-  margin-bottom: 40px;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.product-card {
-  text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.product-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.product-header h3 {
-  font-size: 18px;
-  color: #333;
-}
-
-.status-badge {
-  padding: 2px 8px;
+  text-decoration: none;
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.status-badge.hot {
-  background-color: #ff4d4f;
-  color: white;
-}
-
-.status-badge.new {
-  background-color: #52c41a;
-  color: white;
-}
-
-.status-badge.popular {
-  background-color: #fa8c16;
-  color: white;
-}
-
-.product-rate {
-  margin-bottom: 24px;
-}
-
-.rate-number {
-  font-size: 36px;
-  font-weight: bold;
-  color: #ff4d4f;
-  margin-right: 4px;
-}
-
-.rate-unit {
-  font-size: 14px;
-  color: #666;
-}
-
-.product-info {
-  border-top: 1px solid #f0f0f0;
-  padding-top: 16px;
-  margin-bottom: 20px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.info-label {
-  color: #666;
+  transition: all 0.3s;
   font-size: 14px;
 }
 
-.info-value {
-  color: #333;
-  font-size: 14px;
-  font-weight: 500;
+.nav-link:hover {
+  color: #1890ff;
+  background-color: #e6f7ff;
 }
 
-.product-btn {
-  width: 100%;
-  padding: 10px 0;
-}
-
-/* 安全保障 */
-.security-section {
-  background-color: #f7f7f7;
-  padding: 60px 0;
-  margin-bottom: 40px;
-}
-
-.security-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-  text-align: center;
-}
-
-.security-item {
-  padding: 30px 20px;
+/* 右侧内容区域 */
+.main-content {
+  flex: 1;
   background-color: white;
   border-radius: 8px;
-  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  overflow: auto;
 }
 
-.security-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+/* 欢迎横幅 */
+.welcome-banner {
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+  color: white;
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.security-icon {
-  font-size: 48px;
+.welcome-banner h1 {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.welcome-banner p {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+/* 通用section样式 */
+.section-header {
   margin-bottom: 16px;
 }
 
-.security-item h3 {
+.section-header h2 {
   font-size: 18px;
   color: #333;
-  margin-bottom: 12px;
+  font-weight: 500;
 }
 
-.security-item p {
-  color: #666;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* 公告部分 */
+/* 公告列表 */
 .announcements-section {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+}
+
+.announcements-list {
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  padding: 16px;
 }
 
 .announcement-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 0;
+  border-bottom: 1px solid #e8e8e8;
 }
 
 .announcement-item:last-child {
@@ -433,66 +332,83 @@ const stats = ref({
 .announcement-content h3 {
   font-size: 16px;
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .announcement-content p {
   font-size: 14px;
   color: #666;
-  line-height: 1.6;
+  margin: 0;
+  flex: 1;
 }
 
 .announcement-time {
   color: #999;
+  font-size: 12px;
+  margin-left: 16px;
+  white-space: nowrap;
+}
+
+/* 安全提示 */
+.security-tips-section {
+  margin-bottom: 20px;
+}
+
+.security-tips-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.security-tip {
+  display: flex;
+  align-items: flex-start;
+  background-color: #f5f7fa;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.security-icon {
+  font-size: 24px;
+  margin-right: 12px;
+  margin-top: 4px;
+}
+
+.security-content h3 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.security-content p {
   font-size: 14px;
-  margin-left: 20px;
+  color: #666;
+  margin: 0;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .banner {
-    padding: 60px 0;
-  }
-  
-  .banner-content h1 {
-    font-size: 36px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .stat-item h3 {
-    font-size: 24px;
-  }
-  
-  .products-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .announcement-item {
+  .home-container {
     flex-direction: column;
-    align-items: flex-start;
+    padding: 10px;
   }
   
-  .announcement-time {
-    margin-left: 0;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .banner-content h1 {
-    font-size: 28px;
+  .sidebar {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 20px;
   }
   
-  .banner-content p {
-    font-size: 16px;
+  .main-content {
+    padding: 16px;
   }
   
-  .stats-grid {
+  .welcome-banner {
+    padding: 30px 20px;
+  }
+  
+  .security-tips-list {
     grid-template-columns: 1fr;
-    gap: 20px;
   }
 }
 </style>

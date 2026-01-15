@@ -57,9 +57,9 @@ public class UserBindController {
         String mobile = (String) phone.get("token_phone");
 
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(mobile!=null, User::getMobile, mobile);
+        lambdaQueryWrapper.eq(mobile!=null, User::getPhone, mobile);
         User user = userService.getOne(lambdaQueryWrapper);
-        Long userId = user.getId();
+        Long userId = Long.valueOf(user.getId());
         // 获取绑定信息
         UserBind bindInfoByUserId = userBindMapper.getBindInfoByUserId(userId);
 
@@ -81,9 +81,9 @@ public class UserBindController {
         String mobile = (String) phone.get("token_phone");
 
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(mobile!=null, User::getMobile, mobile);
+        lambdaQueryWrapper.eq(mobile!=null, User::getPhone, mobile);
         User user = userService.getOne(lambdaQueryWrapper);
-        Long userId = user.getId();
+        Long userId = Long.valueOf(user.getId());
         String formStr = userBindService.commitBindUser(userBindDTO, userId);
         return new PccAjaxResult(200, "账户提交绑定数据成功", formStr);
     }
