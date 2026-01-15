@@ -16,6 +16,7 @@ import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -26,8 +27,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Web配置类，包含CORS配置和JWT拦截器配置
+ */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
+    
+    private final JWTInterceptor jwtInterceptor;
+    
+    public CorsConfig(JWTInterceptor jwtInterceptor) {
+        this.jwtInterceptor = jwtInterceptor;
+    }
+    
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -36,6 +47,26 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(3600)
                 .allowedHeaders("*");
+    }
+    
+    /**
+     * 添加拦截器配置
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtInterceptor)
+                // 拦截所有请求
+                .addPathPatterns("/**")
+                // 排除登录接口
+                .excludePathPatterns("/api/core/user/login")
+                // 排除注册接口
+                .excludePathPatterns("/api/core/user/register")
+                // 排除获取验证码接口
+                .excludePathPatterns("/api/sms/send")
+                // 排除静态资源
+                .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**")
+                // 排除健康检查接口
+                .excludePathPatterns("/actuator/**");
     }
 
     /**

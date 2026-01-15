@@ -96,13 +96,13 @@ public class UserController {
             userLoginRecord.setIp(ip);
             userLoginRecordMapper.insert(userLoginRecord);
 
-            String token = TokenUtil.generateMerchantToken(phone, Long.valueOf(emp.getId()));
+            String token = TokenUtil.generateUserToken(phone, Long.valueOf(emp.getId()));
 
             return new PccAjaxResult(200, "登录成功", token);
         } catch (Exception e) {
             log.error("登录失败，数据库查询异常：", e);
             // 数据库查询失败时，返回模拟登录成功（仅用于测试环境）
-            String token = TokenUtil.generateMerchantToken(phone, 1L);
+            String token = TokenUtil.generateUserToken(phone, 1L);
             return new PccAjaxResult(200, "登录成功", token);
         }
     }
@@ -171,7 +171,7 @@ public class UserController {
         }
         
         // 通过token获取手机号
-        Map<String, String> phone = TokenUtil.getMapInfoFromToken(token);
+        Map<String, String> phone = TokenUtil.getUserInfoFromToken(token);
 
         log.info(phone.toString());
 
@@ -294,7 +294,7 @@ public class UserController {
         }
         
         // 通过token获取手机号
-        Map<String, String> phone = TokenUtil.getMapInfoFromToken(token);
+        Map<String, String> phone = TokenUtil.getUserInfoFromToken(token);
 
         log.info(phone.toString());
 

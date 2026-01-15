@@ -16,20 +16,111 @@
         <result column="update_time" property="updateTime" />
         <result column="is_deleted" property="deleted" />
     </resultMap>
+    
+    <!-- 扩展结果映射，包含关联表信息 -->
+    <resultMap id="BorrowInfoDetailResultMap" type="com.wwfinance.entity.BorrowInfo" extends="BaseResultMap">
+        <!-- 关联借款人信息 -->
+        <result column="borrower_name" property="name" />
+        <result column="borrower_mobile" property="mobile" />
+        <result column="id_card" property="idCard" />
+        <!-- 关联用户信息 -->
+        <result column="user_name" property="userName" />
+        <result column="email" property="email" />
+        <!-- 关联积分信息 -->
+        <result column="integral" property="integral" />
+    </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, user_id, amount, period, borrow_year_rate, return_method, money_use, status, create_time, update_time, is_deleted
     </sql>
+    
+    <!-- 关联查询结果列 -->
+    <sql id="BorrowInfoDetail_Column_List">
+        bi.id, bi.user_id, bi.amount, bi.period, bi.borrow_year_rate, bi.return_method, bi.money_use, bi.status, 
+        bi.create_time, bi.update_time, bi.is_deleted, 
+        b.name as borrower_name, b.mobile as borrower_mobile, b.id_card, 
+        u.name as user_name, u.email, 
+        ui.integral
+    </sql>
 
-    <select id="selectBorrowInfoList" resultType="com.wwfinance.entity.BorrowInfo">
+    <select id="selectBorrowInfoList" resultMap="BorrowInfoDetailResultMap">
         select
-            bi.*,
-            b.name,
-            b.mobile
+            <include refid="BorrowInfoDetail_Column_List" />
         from borrow_info as bi
                  left join borrower as b on bi.user_id = b.user_id
+                 left join user as u on bi.user_id = u.id
+                 left join user_integral as ui on bi.user_id = ui.user_id
         where bi.is_deleted = 0
+    </select>
+    
+    <!-- 根据ID查询借款信息详情 -->
+    <select id="selectBorrowInfoById" parameterType="java.lang.Long" resultMap="BorrowInfoDetailResultMap">
+        select
+            <include refid="BorrowInfoDetail_Column_List" />
+        from borrow_info as bi
+                 left join borrower as b on bi.user_id = b.user_id
+                 left join user as u on bi.user_id = u.id
+                 left join user_integral as ui on bi.user_id = ui.user_id
+        where bi.id = #{id} and bi.is_deleted = 0
+    </select>
+    
+    <!-- 根据用户ID查询借款信息 -->
+    <select id="selectBorrowInfoByUserId" parameterType="java.lang.Long" resultMap="BorrowInfoDetailResultMap">
+        select
+            <include refid="BorrowInfoDetail_Column_List" />
+        from borrow_info as bi
+                 left join borrower as b on bi.user_id = b.user_id
+                 left join user as u on bi.user_id = u.id
+                 left join user_integral as ui on bi.user_id = ui.user_id
+        where bi.user_id = #{userId} and bi.is_deleted = 0
+        order by bi.create_time desc
+    </select>
+    
+    <!-- 根据状态查询借款信息 -->
+    <select id="selectBorrowInfoByStatus" parameterType="java.lang.Integer" resultMap="BorrowInfoDetailResultMap">
+        select
+            <include refid="BorrowInfoDetail_Column_List" />
+        from borrow_info as bi
+                 left join borrower as b on bi.user_id = b.user_id
+                 left join user as u on bi.user_id = u.id
+                 left join user_integral as ui on bi.user_id = ui.user_id
+        where bi.status = #{status} and bi.is_deleted = 0
+        order by bi.create_time desc
+    </select>
+    
+    <!-- 借款信息统计查询 -->
+    <select id="selectBorrowInfoStatistics" resultType="java.util.Map">
+        select
+            count(*) as total_count,
+            sum(amount) as total_amount,
+            avg(borrow_year_rate) as avg_rate,
+            sum(case when status = 0 then 1 else 0 end) as pending_count,
+            sum(case when status = 1 then 1 else 0 end) as approved_count,
+            sum(case when status = 2 then 1 else 0 end) as rejected_count
+        from borrow_info
+        where is_deleted = 0
+    </select>
+    
+    <!-- 分页查询借款信息 -->
+    <select id="selectBorrowInfoPage" parameterType="com.baomidou.mybatisplus.extension.plugins.pagination.Page" resultMap="BorrowInfoDetailResultMap">
+        select
+            <include refid="BorrowInfoDetail_Column_List" />
+        from borrow_info as bi
+                 left join borrower as b on bi.user_id = b.user_id
+                 left join user as u on bi.user_id = u.id
+                 left join user_integral as ui on bi.user_id = ui.user_id
+        where bi.is_deleted = 0
+        <if test="param.userId != null">
+            and bi.user_id = #{param.userId}
+        </if>
+        <if test="param.status != null">
+            and bi.status = #{param.status}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            and (u.name like concat('%', #{param.keyword}, '%') or b.mobile like concat('%', #{param.keyword}, '%'))
+        </if>
+        order by bi.create_time desc
     </select>
 
 </mapper>

@@ -50,7 +50,7 @@ public class UserBindController {
         String token = authorizationHeader;
         log.info("token:" + token);
         // 通过token获取手机号
-        Map<String, String> phone = TokenUtil.getMapInfoFromToken(token);
+        Map<String, String> phone = TokenUtil.getUserInfoFromToken(token);
 
         log.info(phone.toString());
 
@@ -74,7 +74,7 @@ public class UserBindController {
         String token = authorizationHeader;
         log.info("token:" + token);
         // 通过token获取手机号
-        Map<String, String> phone = TokenUtil.getMapInfoFromToken(token);
+        Map<String, String> phone = TokenUtil.getUserInfoFromToken(token);
 
         log.info(phone.toString());
 

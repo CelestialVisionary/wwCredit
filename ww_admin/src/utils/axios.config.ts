@@ -6,7 +6,11 @@ axios.defaults.baseURL = 'http://localhost:8110'
 // 请求拦截器
 axios.interceptors.request.use(
   (config) => {
-    // 可以在这里添加token等请求头
+    // 添加token请求头
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = token
+    }
     return config
   },
   (error) => {

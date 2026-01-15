@@ -1,10 +1,12 @@
 package com.wwfinance.xxBank;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.wwfinance.common.utils.HttpUtils;
 import com.wwfinance.common.utils.MD5;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -102,5 +104,128 @@ public class RequestHelper {
             ex.printStackTrace();
         }
         return JSONObject.parseObject(result);
+    }
+    
+    /**
+     * 将Map转换为字符串
+     * @param map
+     * @return
+     */
+    public static String convertMapToString(Map<String, Object> map) {
+        if (map == null || map.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            sb.append(entry.getKey()).append("=")
+              .append(entry.getValue()).append("&");
+        }
+        // 移除最后一个&符号
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+    
+    /**
+     * 将字符串转换为Map
+     * @param str
+     * @return
+     */
+    public static Map<String, Object> convertStringToMap(String str) {
+        Map<String, Object> map = new HashMap<>();
+        if (str == null || str.isEmpty()) {
+            return map;
+        }
+        String[] pairs = str.split("&");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length == 2) {
+                map.put(keyValue[0], keyValue[1]);
+            }
+        }
+        return map;
+    }
+    
+    /**
+     * 将对象转换为Map
+     * @param obj
+     * @return
+     */
+    public static Map<String, Object> convertObjectToMap(Object obj) {
+        Map<String, Object> map = new HashMap<>();
+        if (obj == null) {
+            return map;
+        }
+        Field[] fields = obj.getClass().getDeclaredFields();
+        try {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                map.put(field.getName(), field.get(obj));
+            }
+        } catch (Exception e) {
+            log.error("Object to Map conversion error: " + e.getMessage(), e);
+        }
+        return map;
+    }
+    
+    /**
+     * 将Map转换为JSON字符串
+     * @param map
+     * @return
+     */
+    public static String convertMapToJson(Map<String, Object> map) {
+        if (map == null || map.isEmpty()) {
+            return "{}";
+        }
+        return JSON.toJSONString(map);
+    }
+    
+    /**
+     * 将JSON字符串转换为Map
+     * @param json
+     * @return
+     */
+    public static Map<String, Object> convertJsonToMap(String json) {
+        Map<String, Object> map = new HashMap<>();
+        if (json == null || json.isEmpty()) {
+            return map;
+        }
+        try {
+            map = JSON.parseObject(json, Map.class);
+        } catch (Exception e) {
+            log.error("JSON to Map conversion error: " + e.getMessage(), e);
+        }
+        return map;
+    }
+    
+    /**
+     * 合并两个Map
+     * @param map1
+     * @param map2
+     * @return
+     */
+    public static Map<String, Object> mergeMaps(Map<String, Object> map1, Map<String, Object> map2) {
+        Map<String, Object> mergedMap = new HashMap<>(map1);
+        mergedMap.putAll(map2);
+        return mergedMap;
+    }
+    
+    /**
+     * 过滤Map中的空值
+     * @param map
+     * @return
+     */
+    public static Map<String, Object> filterEmptyValues(Map<String, Object> map) {
+        Map<String, Object> filteredMap = new HashMap<>();
+        if (map == null || map.isEmpty()) {
+            return filteredMap;
+        }
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getValue() != null && !entry.getValue().toString().isEmpty()) {
+                filteredMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredMap;
     }
 }

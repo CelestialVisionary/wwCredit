@@ -1,20 +1,30 @@
-# 信贷管理系统
+# 威武信贷金融管理平台
 
-## 项目简介
+## 项目地址
 
-这是一个完整的金融信贷管理系统，采用前后端分离架构，包含用户前台和管理后台。系统提供了用户管理、积分等级、借款管理、出借管理、还款管理等核心功能，旨在为用户提供安全、便捷的金融服务。
+`https://github.com/CelestialVisionary/wwCredit`
 
 ## 技术栈
 
-### 后端技术栈
-- **框架**: Spring Boot 3.2.10
-- **ORM**: MyBatis-Plus 3.5.6
-- **数据库**: MySQL 8.0+
-- **微服务架构**: Spring Cloud Alibaba
-- **注册中心/配置中心**: Nacos 2.2.2
-- **API文档**: Swagger/OpenAPI 3.0.1
-- **缓存**: Redis 7.0+
-- **构建工具**: Maven 3.6.3+
+Java 21、Spring Boot 3、MyBatis-Plus、MySQL、Vue3、TypeScript、Vue Router、JWT、Maven、RESTful API
+
+## 项目描述
+
+参与开发的威武信贷金融管理平台，覆盖信贷业务全流程，包含前端用户端 / 管理后台、后端业务接口服务，支撑借款配置、用户积分、登录记录、公告管理等核心功能，适配多端交互并保障接口安全与数据合规。
+
+## 主要工作
+
+### 后端开发
+- 基于 Spring Boot 3+MyBatis-Plus 实现用户积分记录表、登录记录表的 CRUD 操作
+- 开发用户登录记录 TOP50 查询接口，通过 QueryWrapper 封装查询条件
+- 手动注册 BorrowInfoMapper Bean，优化 MyBatis 映射配置，编写借款信息关联查询 SQL
+- 封装 RequestHelper 工具类实现请求参数 Map 格式转换
+- 新增 BadSqlGrammarException 全局异常处理，提升接口容错性
+
+### 接口与安全
+- 基于 JWT 实现接口无状态认证
+- 配合前端完成路由权限控制、页面联调，保障借款配置、积分查询等核心功能正常可用
+- 适配 Java 21 版本特性，通过 Maven 完成项目构建打包，保障后端服务稳定运行
 
 ### 前端技术栈
 - **框架**: Vue 3

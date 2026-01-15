@@ -10,9 +10,11 @@ spring:
   cloud:
     nacos:
       discovery:
-        enabled: false
+        enabled: true
+        server-addr: localhost:8848
       config:
-        enabled: false
+        enabled: true
+        server-addr: localhost:8848
 
 logging:
   level:

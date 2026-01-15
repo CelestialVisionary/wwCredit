@@ -37,16 +37,7 @@ const passwordStrengthColor = ref('#d9d9d9')
 // 验证邮箱已移除，后端无需此字段
 
 
-// 检查手机号是否已注册
-const checkMobile = async () => {
-  try {
-    const response = await apiClient.get(`/user/checkMobile/${formData.mobile}`)
-    return response.data.data
-  } catch (error) {
-    console.error('手机号检查失败:', error)
-    return false
-  }
-}
+
 
 // 验证手机号
 const validatePhone = async () => {

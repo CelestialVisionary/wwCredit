@@ -254,7 +254,7 @@ const handleUpdatePassword = async () => {
             </div>
             <div class="profile-item">
               <label>手机号：</label>
-              <span>{{ userInfo?.mobile || '' }}</span>
+              <span>{{ userInfo?.phone || '' }}</span>
             </div>
             <div class="profile-item">
               <label>邮箱：</label>

@@ -122,7 +122,7 @@ public class BorrowInfoController {
     private Long getUserIdFromToken(String authorizationHeader) {
         String token = authorizationHeader;
         log.info("token:" + token);
-        Map<String, String> tokenInfo = TokenUtil.getMapInfoFromToken(token);
+        Map<String, String> tokenInfo = TokenUtil.getUserInfoFromToken(token);
         String mobile = tokenInfo.get("token_phone");
         return Long.parseLong(tokenInfo.get("token_user_id"));
     }
