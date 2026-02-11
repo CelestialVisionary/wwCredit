@@ -1,76 +1,50 @@
-# Java项目忽略规则
-*.class
-*.log
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# Maven
-/target/
-/.mvn/
-
-# Gradle
-/build/
-.gradle/
-
-# IDEA
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# Eclipse
-.classpath
-.project
-.settings/
-
-# VSCode
-.vscode/
-
-# Node.js
+# 依赖目录
+venv/
+env/
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
 
-# Vue/React项目构建产物
+# 编译输出
+target/
 dist/
 build/
-
-# 操作系统文件
-.DS_Store
-Thumbs.db
-
-# 环境变量文件
-.env
-.env.local
-.env.*.local
 
 # 日志文件
 logs/
 *.log
 
+# 配置文件
+.env
+.env.local
+.env.*.local
+
+# IDE文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 测试文件
+__pycache__/
+*.py[cod]
+*$py.class
+
 # 数据库文件
 *.db
-*.sqlite
+*.sqlite3
 
 # 缓存文件
-.npm-cache/
-.eslintcache
+.cache/
+.tmp/
 
-# 测试覆盖率
-coverage/
-.nyc_output/
-
-# 临时文件
-*.tmp
-*.temp
-.temp/
-
-# Trae IDE工作目录
-.trae/
+# 打包文件
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar

@@ -49,6 +49,20 @@ logging:
   level:
     root: info
 
+# 大模型API配置
+ai:
+  model:
+    api-key: your-api-key-here
+    base-url: https://api.openai.com/v1
+    model-name: gpt-3.5-turbo
+    temperature: 0.7
+    max-tokens: 1000
+  
+  # Python微调服务配置
+  fine-tune:
+    service-url: http://localhost:8000
+    enabled: true
+
 # SpringDoc OpenAPI 配置
 springdoc:
   # API文档JSON数据地址

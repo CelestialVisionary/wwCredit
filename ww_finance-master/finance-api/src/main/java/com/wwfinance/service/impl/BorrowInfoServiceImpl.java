@@ -12,7 +12,9 @@ import com.wwfinance.enums.BorrowInfoStatusEnum;
 import com.wwfinance.mapper.BorrowInfoMapper;
 import com.wwfinance.mapper.BorrowerMapper;
 import com.wwfinance.mapper.UserMapper;
+import com.wwfinance.service.AiAgentService;
 import com.wwfinance.service.BorrowInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -25,6 +27,7 @@ import java.util.List;
  * </p>
  */
 @Service
+@Slf4j
 public class BorrowInfoServiceImpl extends ServiceImpl<BorrowInfoMapper, BorrowInfo> implements BorrowInfoService {
 
     @Resource
@@ -35,6 +38,9 @@ public class BorrowInfoServiceImpl extends ServiceImpl<BorrowInfoMapper, BorrowI
 
     @Resource
     private UserMapper userMapper;
+    
+    @Resource
+    private AiAgentService aiAgentService;
 
     @Override
     public BigDecimal getBorrowAmount(Long userId) {
@@ -85,11 +91,22 @@ public class BorrowInfoServiceImpl extends ServiceImpl<BorrowInfoMapper, BorrowI
             throw new RuntimeException("借款金额超过可借额度");
         }
 
-        // 2. 设置借款信息
+        // 2. 使用AI Agent评估借款风险
+        log.info("使用AI Agent评估借款风险，用户ID: {}, 借款金额: {}, 借款期限: {}", 
+                userId, borrowInfo.getAmount(), borrowInfo.getPeriod());
+        
+        String riskEvaluation = aiAgentService.evaluateBorrowRisk(
+                userId, 
+                borrowInfo.getAmount().doubleValue(), 
+                borrowInfo.getPeriod()
+        );
+        log.info("AI Agent风险评估结果: {}", riskEvaluation);
+
+        // 3. 设置借款信息
         borrowInfo.setUserId(userId);
         borrowInfo.setStatus(BorrowInfoStatusEnum.CHECK_RUN.getStatus()); // 审核中
 
-        // 3. 保存借款信息
+        // 4. 保存借款信息
         baseMapper.insert(borrowInfo);
     }
 
